@@ -55,6 +55,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#glidertest.tools.compute_hyst_stat"><code class="docutils literal notranslate"><span class="pre">compute_hyst_stat()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#glidertest.tools.compute_prof_duration"><code class="docutils literal notranslate"><span class="pre">compute_prof_duration()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#glidertest.tools.find_outlier_duration"><code class="docutils literal notranslate"><span class="pre">find_outlier_duration()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#glidertest.tools.max_depth_per_profile"><code class="docutils literal notranslate"><span class="pre">max_depth_per_profile()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#glidertest.tools.quant_binavg"><code class="docutils literal notranslate"><span class="pre">quant_binavg()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#glidertest.tools.quant_hysteresis"><code class="docutils literal notranslate"><span class="pre">quant_hysteresis()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#glidertest.tools.quant_updown_bias"><code class="docutils literal notranslate"><span class="pre">quant_updown_bias()</span></code></a></li>
@@ -67,6 +68,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#glidertest.plots.plot_grid_spacing"><code class="docutils literal notranslate"><span class="pre">plot_grid_spacing()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#glidertest.plots.plot_hysteresis"><code class="docutils literal notranslate"><span class="pre">plot_hysteresis()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#glidertest.plots.plot_ioosqc"><code class="docutils literal notranslate"><span class="pre">plot_ioosqc()</span></code></a></li>
+<li class="toctree-l2"><a class="reference internal" href="#glidertest.plots.plot_max_depth_per_profile"><code class="docutils literal notranslate"><span class="pre">plot_max_depth_per_profile()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#glidertest.plots.plot_outlier_duration"><code class="docutils literal notranslate"><span class="pre">plot_outlier_duration()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#glidertest.plots.plot_prof_monotony"><code class="docutils literal notranslate"><span class="pre">plot_prof_monotony()</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="#glidertest.plots.plot_quench_assess"><code class="docutils literal notranslate"><span class="pre">plot_quench_assess()</span></code></a></li>
@@ -329,6 +331,29 @@ within the range <cite>[min_val, max_val]</cite>. Values outside this range are 
 <li><p><em>Original author</em></p></li>
 <li><p><em>—————-</em></p></li>
 <li><p><em>Chiara  Monforte</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="glidertest.tools.max_depth_per_profile">
+<span class="sig-prename descclassname"><span class="pre">glidertest.tools.</span></span><span class="sig-name descname"><span class="pre">max_depth_per_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dataset</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/glidertest/tools.html#max_depth_per_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#glidertest.tools.max_depth_per_profile" title="Link to this definition"></a></dt>
+<dd><p>This function computes the maximum depth for each profile in the dataset</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds</strong> (<em>xarray on OG1 format containing at least depth and profile_number. Data</em>)</p></li>
+<li><p><strong>gridded.</strong> (<em>should not be</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><strong>max_depths</strong> (<em>pandas dataframe containing the profile number and the maximum depth of that profile</em>)</p></li>
+<li><p><em>Original author</em></p></li>
+<li><p><em>—————-</em></p></li>
+<li><p><em>Till Moritz</em></p></li>
 </ul>
 </p>
 </dd>
@@ -653,6 +678,29 @@ on thresholds, and another for marking specific suspect and fail ranges.</p></li
 <h2>Original author<a class="headerlink" href="#original-author" title="Link to this heading"></a></h2>
 <p>Chiara Monforte</p>
 </section>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="glidertest.plots.plot_max_depth_per_profile">
+<span class="sig-prename descclassname"><span class="pre">glidertest.plots.</span></span><span class="sig-name descname"><span class="pre">plot_max_depth_per_profile</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">ds:</span> <span class="pre">~xarray.core.dataset.Dataset</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins=20</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ax=None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">**kw:</span> <span class="pre">dict)</span> <span class="pre">-&gt;</span> <span class="pre">(&lt;class</span> <span class="pre">'matplotlib.figure.Figure'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">&lt;class</span> <span class="pre">'matplotlib.axes._axes.Axes'&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/glidertest/plots.html#plot_max_depth_per_profile"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#glidertest.plots.plot_max_depth_per_profile" title="Link to this definition"></a></dt>
+<dd><p>This function can be used to plot the maximum depth of each profile in a dataset.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>ds</strong> (<em>xarray on OG1 format containing the profile number and the maximum depth.</em>)</p></li>
+<li><p><strong>bins</strong> (<em>int</em><em>, </em><em>optional</em><em> (</em><em>default=20</em><em>)</em>)</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><ul class="simple">
+<li><p><em>One figure with two plots illustrating the max depth of each profile and a histogram of the max depths</em></p></li>
+<li><p><em>Original author</em></p></li>
+<li><p><em>—————-</em></p></li>
+<li><p><em>Till Moritz</em></p></li>
+</ul>
+</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
