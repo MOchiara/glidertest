@@ -98,6 +98,24 @@
 <span class="nb">dir</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">dirname</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">realpath</span><span class="p">(</span><span class="vm">__file__</span><span class="p">))</span>
 <span class="n">glidertest_style_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="nb">dir</span><span class="si">}</span><span class="s2">/glidertest.mplstyle"</span>
 
+<span class="c1"># The style spec the plotters apply. A str path by default; a report builder may</span>
+<span class="c1"># set it to a list of style specs (paths and rcParams dicts, as accepted by</span>
+<span class="c1"># ``matplotlib.style.context``) for the duration of a build, then restore it.</span>
+<span class="n">_ACTIVE_STYLE</span> <span class="o">=</span> <span class="n">glidertest_style_file</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_style</span><span class="p">():</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the matplotlib style spec the plotting functions apply.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str or list</span>
+<span class="sd">        The package mplstyle path by default, or whatever a report builder has</span>
+<span class="sd">        set ``_ACTIVE_STYLE`` to for the current build.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="n">_ACTIVE_STYLE</span>
+
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_show</span><span class="p">():</span>
 <span class="w">    </span><span class="sd">"""</span>
@@ -143,9 +161,11 @@
 <span class="sd">    -----</span>
 <span class="sd">    Original Author: Chiara Monforte</span>
 <span class="sd">    """</span>
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
+            <span class="n">third_width</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">3.11</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="n">third_width</span><span class="p">,</span> <span class="n">third_width</span> <span class="o">*</span> <span class="mf">1.1</span><span class="p">)</span>
             <span class="n">force_plot</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
@@ -220,7 +240,7 @@
     <span class="n">denG</span> <span class="o">=</span> <span class="n">denG</span><span class="p">[</span><span class="n">start_prof</span><span class="p">:</span><span class="n">end_prof</span><span class="p">,</span> <span class="p">:]</span>
     <span class="n">depthG</span> <span class="o">=</span> <span class="n">depthG</span><span class="p">[</span><span class="n">start_prof</span><span class="p">:</span><span class="n">end_prof</span><span class="p">,</span> <span class="p">:]</span>
 
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="k">with</span> <span class="n">warnings</span><span class="o">.</span><span class="n">catch_warnings</span><span class="p">():</span>
             <span class="n">warnings</span><span class="o">.</span><span class="n">simplefilter</span><span class="p">(</span><span class="s2">"ignore"</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">RuntimeWarning</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
@@ -231,8 +251,8 @@
                 <span class="n">force_plot</span> <span class="o">=</span> <span class="kc">False</span>
 
             <span class="c1"># Resize to half-width</span>
-            <span class="c1">#half_width = fig.get_size_inches()[0] / 2.07</span>
-            <span class="c1">#fig.set_size_inches(half_width, half_width * 0.85)</span>
+            <span class="n">half_width</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.07</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="n">half_width</span><span class="p">,</span> <span class="n">half_width</span> <span class="o">*</span> <span class="mf">0.85</span><span class="p">)</span>
             <span class="n">ax1</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">twiny</span><span class="p">()</span>
             <span class="n">ax2</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">twiny</span><span class="p">()</span>
             <span class="n">ax2_1</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">twiny</span><span class="p">()</span>
@@ -254,33 +274,39 @@
             <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">'blue'</span><span class="p">)</span>
             <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'blue'</span><span class="p">)</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">'bottom'</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'blue'</span><span class="p">)</span>
+            <span class="n">new_font</span> <span class="o">=</span> <span class="n">ax</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">get_fontsize</span><span class="p">()</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">'bottom'</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'blue'</span><span class="p">)</span>
-            <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">utilities</span><span class="o">.</span><span class="n">plotting_labels</span><span class="p">(</span><span class="s2">"PSAL"</span><span class="p">)</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">utilities</span><span class="o">.</span><span class="n">plotting_units</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span><span class="w"> </span><span class="s2">"PSAL"</span><span class="p">)</span><span class="si">}</span><span class="s1">)'</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">utilities</span><span class="o">.</span><span class="n">plotting_labels</span><span class="p">(</span><span class="s2">"PSAL"</span><span class="p">)</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">utilities</span><span class="o">.</span><span class="n">plotting_units</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span><span class="w"> </span><span class="s2">"PSAL"</span><span class="p">)</span><span class="si">}</span><span class="s1">)'</span><span class="p">,</span>
+                           <span class="n">fontsize</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">new_font</span><span class="p">))</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'red'</span><span class="p">)</span>
             <span class="n">ax1</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">'top'</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'red'</span><span class="p">)</span>
-            <span class="n">ax1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">'red'</span><span class="p">)</span>
-            <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">utilities</span><span class="o">.</span><span class="n">plotting_labels</span><span class="p">(</span><span class="s2">"DENSITY"</span><span class="p">)</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">utilities</span><span class="o">.</span><span class="n">plotting_units</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span><span class="w"> </span><span class="s2">"DENSITY"</span><span class="p">)</span><span class="si">}</span><span class="s1">)'</span><span class="p">)</span>
+            <span class="n">ax1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">'red'</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">new_font</span><span class="p">))</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">utilities</span><span class="o">.</span><span class="n">plotting_labels</span><span class="p">(</span><span class="s2">"DENSITY"</span><span class="p">)</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">utilities</span><span class="o">.</span><span class="n">plotting_units</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span><span class="w"> </span><span class="s2">"DENSITY"</span><span class="p">)</span><span class="si">}</span><span class="s1">)'</span><span class="p">,</span>
+                           <span class="n">fontsize</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">new_font</span><span class="p">))</span>
             <span class="n">ax2</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'black'</span><span class="p">)</span>
             <span class="n">ax2</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">'top'</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'black'</span><span class="p">)</span>
-            <span class="n">ax2</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">'black'</span><span class="p">)</span>
+            <span class="n">ax2</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">new_font</span><span class="p">))</span>
 
             <span class="c1"># Add text annotation to the right, outside of the plot</span>
             <span class="n">ax2</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">1.68</span><span class="p">,</span> <span class="mf">1.25</span><span class="p">,</span> <span class="sa">f</span><span class="s1">'Averaged profiles </span><span class="se">\n</span><span class="s1"> </span><span class="si">{</span><span class="n">start_prof</span><span class="si">}</span><span class="s1">-</span><span class="si">{</span><span class="n">end_prof</span><span class="si">}</span><span class="s1">'</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax2</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
-                     <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">))</span>
+                     <span class="n">verticalalignment</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span> <span class="n">horizontalalignment</span><span class="o">=</span><span class="s1">'center'</span><span class="p">,</span> <span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">new_font</span><span class="p">),</span>
+                     <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">facecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="s1">'CHLA'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
                 <span class="n">chlaG</span><span class="p">,</span> <span class="n">profG</span><span class="p">,</span> <span class="n">depthG</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">construct_2dgrid</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">PROFILE_NUMBER</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">DEPTH</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">CHLA</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span><span class="n">x_bin_center</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
                 <span class="n">chlaG</span> <span class="o">=</span> <span class="n">chlaG</span><span class="p">[</span><span class="n">start_prof</span><span class="p">:</span><span class="n">end_prof</span><span class="p">,</span> <span class="p">:]</span>
                 <span class="n">ax2_1</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">nanmean</span><span class="p">(</span><span class="n">chlaG</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">),</span> <span class="n">depthG</span><span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="p">:],</span> <span class="n">c</span><span class="o">=</span><span class="s1">'green'</span><span class="p">)</span>
-                <span class="n">ax2_1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">utilities</span><span class="o">.</span><span class="n">plotting_labels</span><span class="p">(</span><span class="s2">"CHLA"</span><span class="p">)</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">utilities</span><span class="o">.</span><span class="n">plotting_units</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span><span class="w"> </span><span class="s2">"CHLA"</span><span class="p">)</span><span class="si">}</span><span class="s1">)'</span><span class="p">)</span>
+                <span class="n">ax2_1</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="n">xlabel</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">utilities</span><span class="o">.</span><span class="n">plotting_labels</span><span class="p">(</span><span class="s2">"CHLA"</span><span class="p">)</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">utilities</span><span class="o">.</span><span class="n">plotting_units</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span><span class="w"> </span><span class="s2">"CHLA"</span><span class="p">)</span><span class="si">}</span><span class="s1">)'</span><span class="p">,</span>
+                                 <span class="n">fontsize</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">new_font</span><span class="p">))</span>
                 <span class="n">ax2_1</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">label</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'green'</span><span class="p">)</span>
                 <span class="n">ax2_1</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">'top'</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'green'</span><span class="p">)</span>
-                <span class="n">ax2_1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">'green'</span><span class="p">)</span>
+                <span class="n">ax2_1</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="s1">'green'</span><span class="p">,</span> <span class="n">labelsize</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">new_font</span><span class="p">))</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">ax2_1</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">visible</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">ax2_1</span><span class="o">.</span><span class="n">get_yticklabels</span><span class="p">()[</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">visible</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">ax2_1</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">(),</span> <span class="n">visible</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="s1">'Chlorophyll data </span><span class="se">\n</span><span class="s1">unavailable'</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">'top'</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">transAxes</span><span class="p">)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.15</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="s1">'Chlorophyll data </span><span class="se">\n</span><span class="s1">unavailable'</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">'top'</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+                           <span class="n">fontsize</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">new_font</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="s1">'DOXY'</span> <span class="ow">in</span> <span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="p">:</span>
                 <span class="n">oxyG</span><span class="p">,</span> <span class="n">profG</span><span class="p">,</span> <span class="n">depthG</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">construct_2dgrid</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">PROFILE_NUMBER</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">DEPTH</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">DOXY</span><span class="p">,</span> <span class="n">p</span><span class="p">,</span> <span class="n">z</span><span class="p">,</span><span class="n">x_bin_center</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
@@ -293,7 +319,8 @@
                 <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">'bottom'</span><span class="p">]</span><span class="o">.</span><span class="n">set_color</span><span class="p">(</span><span class="s1">'orange'</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">plt</span><span class="o">.</span><span class="n">setp</span><span class="p">(</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">get_xticklabels</span><span class="p">(),</span> <span class="n">visible</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
-                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="s1">'Oxygen data </span><span class="se">\n</span><span class="s1">unavailable'</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">'top'</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">transAxes</span><span class="p">)</span>
+                <span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">text</span><span class="p">(</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="s1">'Oxygen data </span><span class="se">\n</span><span class="s1">unavailable'</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">'top'</span><span class="p">,</span> <span class="n">transform</span><span class="o">=</span><span class="n">ax</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">transAxes</span><span class="p">,</span>
+                           <span class="n">fontsize</span><span class="o">=</span><span class="nb">int</span><span class="p">(</span><span class="n">new_font</span><span class="p">))</span>
 
             <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">set_ylim</span><span class="p">(</span><span class="n">depthG</span><span class="o">.</span><span class="n">max</span><span class="p">(),</span> <span class="mi">0</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">ax</span><span class="p">]</span>
             <span class="p">[</span><span class="n">a</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">ax</span><span class="p">]</span>
@@ -368,7 +395,7 @@
     <span class="n">slope</span><span class="p">,</span> <span class="n">intercept</span><span class="p">,</span> <span class="n">r_value</span><span class="p">,</span> <span class="n">p_value</span><span class="p">,</span> <span class="n">std_err</span> <span class="o">=</span> <span class="n">stats</span><span class="o">.</span><span class="n">linregress</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">bottom_opt_data</span><span class="p">)),</span> <span class="n">bottom_opt_data</span><span class="p">)</span>
 
     <span class="c1"># Generate the plot</span>
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>  <span class="c1"># Create figure and axes</span>
 
         <span class="n">sns</span><span class="o">.</span><span class="n">regplot</span><span class="p">(</span>
@@ -436,7 +463,7 @@
         <span class="n">dates</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">day</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span> <span class="o">+</span> <span class="nb">list</span><span class="p">(</span><span class="n">night</span><span class="o">.</span><span class="n">date</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
         <span class="n">dates</span><span class="o">.</span><span class="n">sort</span><span class="p">()</span>
         <span class="n">sel_day</span> <span class="o">=</span> <span class="n">dates</span><span class="p">[</span><span class="nb">int</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">dates</span><span class="p">)</span><span class="o">/</span><span class="mi">2</span><span class="p">)]</span>
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
             <span class="n">force_plot</span> <span class="o">=</span> <span class="kc">True</span>
@@ -501,11 +528,11 @@
 <span class="sd">    Original Author: Chiara Monforte</span>
 <span class="sd">    """</span>
     <span class="n">utilities</span><span class="o">.</span><span class="n">_check_necessary_variables</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="p">[</span><span class="s1">'TIME'</span><span class="p">,</span> <span class="n">sel_var</span><span class="p">,</span> <span class="s1">'DEPTH'</span><span class="p">])</span>
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-            <span class="c1">#full_width = fig.get_size_inches()[0]</span>
-            <span class="c1">#fig.set_size_inches(full_width, full_width * 0.5)</span>
+            <span class="n">full_width</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> 
+            <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="n">full_width</span><span class="p">,</span> <span class="n">full_width</span> <span class="o">*</span> <span class="mf">0.5</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
 
@@ -583,7 +610,7 @@
 <span class="sd">    Original Author: Chiara Monforte</span>
 <span class="sd">    """</span>
     <span class="n">utilities</span><span class="o">.</span><span class="n">_check_necessary_variables</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="p">[</span><span class="s1">'TIME'</span><span class="p">,</span> <span class="n">var</span><span class="p">,</span> <span class="s1">'DEPTH'</span><span class="p">])</span>
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
             <span class="n">force_plot</span> <span class="o">=</span> <span class="kc">True</span>
@@ -616,7 +643,7 @@
             <span class="n">color_max</span> <span class="o">=</span> <span class="n">color_array</span><span class="o">.</span><span class="n">max</span><span class="p">()</span>
             <span class="n">ticks</span> <span class="o">=</span> <span class="p">[</span><span class="n">tick</span> <span class="k">for</span> <span class="n">tick</span> <span class="ow">in</span> <span class="n">ticks</span> <span class="k">if</span> <span class="n">color_min</span> <span class="o">&lt;=</span> <span class="n">tick</span> <span class="o">&lt;=</span> <span class="n">color_max</span><span class="p">]</span>
 
-            <span class="c1"># Pass vmin/vmax to scatter</span>
+            <span class="c1"># ✅ Pass vmin/vmax to scatter!</span>
             <span class="n">c</span><span class="o">.</span><span class="n">set_clim</span><span class="p">(</span><span class="n">vmin</span><span class="o">=</span><span class="nb">min</span><span class="p">(</span><span class="n">ticks</span><span class="p">),</span> <span class="n">vmax</span><span class="o">=</span><span class="nb">max</span><span class="p">(</span><span class="n">ticks</span><span class="p">))</span>
 
         <span class="c1"># Now plot colorbar</span>
@@ -663,7 +690,7 @@
 <span class="sd">    Original Author: Chiara Monforte</span>
 <span class="sd">    """</span>
     <span class="n">utilities</span><span class="o">.</span><span class="n">_check_necessary_variables</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="p">[</span><span class="s1">'TIME'</span><span class="p">,</span> <span class="s1">'PROFILE_NUMBER'</span><span class="p">,</span> <span class="s1">'DEPTH'</span><span class="p">])</span>
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="n">sharex</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
@@ -717,7 +744,7 @@
 <span class="sd">    Original Author: Eleanor Frajka-Williams</span>
 <span class="sd">    """</span>
     <span class="n">utilities</span><span class="o">.</span><span class="n">_check_necessary_variables</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="p">[</span><span class="s1">'TIME'</span><span class="p">,</span> <span class="s1">'LONGITUDE'</span><span class="p">,</span> <span class="s1">'LATITUDE'</span><span class="p">])</span>
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">subplot_kw</span><span class="o">=</span><span class="p">{</span><span class="s1">'projection'</span><span class="p">:</span> <span class="n">ccrs</span><span class="o">.</span><span class="n">PlateCarree</span><span class="p">()})</span>
         <span class="k">else</span><span class="p">:</span>
@@ -823,11 +850,15 @@
 <span class="sd">    Original Author: Eleanor Frajka-Williams</span>
 <span class="sd">    """</span>
     <span class="n">utilities</span><span class="o">.</span><span class="n">_check_necessary_variables</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="p">[</span><span class="s1">'TIME'</span><span class="p">,</span> <span class="s1">'DEPTH'</span><span class="p">])</span>
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>
+            <span class="c1"># Set aspect ration of plot to be 2:1</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="n">fig</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()[</span><span class="mi">0</span><span class="p">],</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mi">2</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
+        <span class="c1"># Set font sizes for all annotations</span>
+        <span class="c1">#def_font_size = 14</span>
 
         <span class="c1"># Calculate the depth and time differences</span>
         <span class="n">depth_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">DEPTH</span><span class="p">)</span>
@@ -897,6 +928,9 @@
                        <span class="p">,</span> <span class="n">ha</span><span class="o">=</span><span class="s1">'right'</span><span class="p">,</span> <span class="n">va</span><span class="o">=</span><span class="s1">'top'</span><span class="p">,</span>
                         <span class="n">bbox</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">boxstyle</span><span class="o">=</span><span class="s1">'round,pad=0.3'</span><span class="p">,</span> <span class="n">edgecolor</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">facecolor</span><span class="o">=</span><span class="s1">'white'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">.5</span><span class="p">))</span>
 
+        <span class="c1"># Set font sizes for all annotations</span>
+        <span class="c1"># Font size 14 looks roughly like fontsize 8 when I drop this figure in Word - a bit small</span>
+        <span class="c1"># Font size 14 looks like fontsize 13 when I drop the top *half* of this figure in powerpoint - acceptable</span>
         <span class="k">for</span> <span class="n">axes</span> <span class="ow">in</span> <span class="n">ax</span><span class="p">:</span>
             <span class="n">axes</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'both'</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">'major'</span><span class="p">)</span>
             <span class="c1"># More subtle grid lines</span>
@@ -908,7 +942,7 @@
 
 <div class="viewcode-block" id="plot_sampling_period_all">
 <a class="viewcode-back" href="../../glidertest.html#glidertest.plots.plot_sampling_period_all">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">plot_sampling_period_all</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">,</span> <span class="n">ax</span><span class="p">:</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">({</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">}):</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">plot_sampling_period_all</span><span class="p">(</span><span class="n">ds</span><span class="p">:</span> <span class="n">xr</span><span class="o">.</span><span class="n">Dataset</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">({</span><span class="n">plt</span><span class="o">.</span><span class="n">Figure</span><span class="p">,</span> <span class="n">plt</span><span class="o">.</span><span class="n">Axes</span><span class="p">}):</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Plots **histograms of the sampling period** for multiple variables.  </span>
 <span class="sd">    By default, it includes **TEMP** and **PSAL**, with **DOXY** and **CHLA** added if present in the dataset.  </span>
@@ -929,6 +963,7 @@
 <span class="sd">    -----</span>
 <span class="sd">    Original Author: Louis Clement</span>
 <span class="sd">    """</span>
+
     <span class="n">count_vars</span><span class="o">=</span><span class="mi">2</span>
     <span class="n">variables</span><span class="o">=</span><span class="p">[</span><span class="s1">'TEMP'</span><span class="p">,</span> <span class="s1">'PSAL'</span><span class="p">]</span>
     <span class="k">if</span> <span class="s1">'DOXY'</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="p">):</span> 
@@ -937,15 +972,12 @@
     <span class="k">if</span> <span class="s1">'CHLA'</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">variables</span><span class="p">):</span> 
         <span class="n">count_vars</span><span class="o">+=</span><span class="mi">1</span>
         <span class="n">variables</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s1">'CHLA'</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">count_vars</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
 
+    <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">count_vars</span><span class="p">,</span> <span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="o">*</span><span class="n">count_vars</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
     <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">variables</span><span class="p">)):</span>
         <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">plot_sampling_period</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">ax</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">variables</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
     <span class="n">_show</span><span class="p">()</span>
+
     <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
 
 
@@ -974,11 +1006,8 @@
 <span class="sd">    Original Author: Louis Clement</span>
 <span class="sd">    """</span>
 
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">gcf</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
 
     <span class="n">nonan</span> <span class="o">=</span> <span class="o">~</span><span class="n">np</span><span class="o">.</span><span class="n">isnan</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="n">variable</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="p">)</span>
     <span class="n">time_diff</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">diff</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">TIME</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="n">nonan</span><span class="p">])</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">timedelta64</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s1">'s'</span><span class="p">)</span>  <span class="c1"># Convert to seconds</span>
@@ -1052,7 +1081,7 @@
 <span class="sd">    Original Author: Eleanor Frajka-Williams</span>
 <span class="sd">    """</span>
     <span class="n">utilities</span><span class="o">.</span><span class="n">_check_necessary_variables</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="p">[</span><span class="s1">'DEPTH'</span><span class="p">,</span> <span class="s1">'LONGITUDE'</span><span class="p">,</span> <span class="s1">'LATITUDE'</span><span class="p">,</span> <span class="s1">'PSAL'</span><span class="p">,</span> <span class="s1">'TEMP'</span><span class="p">])</span>
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">axs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">)</span>
             <span class="n">plt</span><span class="o">.</span><span class="n">subplots_adjust</span><span class="p">(</span><span class="n">wspace</span><span class="o">=</span><span class="mf">0.03</span><span class="p">,</span> <span class="n">hspace</span><span class="o">=</span><span class="mf">0.03</span><span class="p">)</span>
@@ -1170,7 +1199,7 @@
 <span class="sd">    Original Author: Eleanor Frajka-Williams</span>
 <span class="sd">    """</span>
     <span class="n">utilities</span><span class="o">.</span><span class="n">_check_necessary_variables</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="p">[</span><span class="s1">'GLIDER_VERT_VELO_MODEL'</span><span class="p">,</span> <span class="s1">'GLIDER_VERT_VELO_DZDT'</span><span class="p">,</span> <span class="s1">'VERT_CURR_MODEL'</span><span class="p">,</span><span class="s1">'PROFILE_NUMBER'</span><span class="p">])</span>
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">start_prof</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">start_prof</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">ds</span><span class="p">[</span><span class="s1">'PROFILE_NUMBER'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span><span class="o">-</span><span class="mi">10</span>
 
@@ -1221,6 +1250,9 @@
             <span class="n">legend_loc</span> <span class="o">=</span> <span class="s1">'upper right'</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">legend_loc</span> <span class="o">=</span> <span class="s1">'lower right'</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">'legend.fontsize'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">12</span>
+        <span class="n">ax1_hist</span><span class="o">.</span><span class="n">legend</span><span class="p">(</span><span class="n">loc</span><span class="o">=</span><span class="n">legend_loc</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">rcParams</span><span class="p">[</span><span class="s1">'legend.fontsize'</span><span class="p">]</span> <span class="o">=</span> <span class="mi">15</span>
         <span class="c1"># Lower left subplot for vertical water speed</span>
         <span class="n">ax2</span> <span class="o">=</span> <span class="n">axs</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
         <span class="n">ax2</span><span class="o">.</span><span class="n">axhline</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'gray'</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">'-'</span><span class="p">,</span> <span class="n">linewidth</span><span class="o">=</span><span class="mf">0.5</span><span class="p">)</span>  <span class="c1"># Add zero horizontal line</span>
@@ -1339,8 +1371,13 @@
     <span class="n">zgrid_climbs</span> <span class="o">=</span> <span class="n">ds_out_climbs</span><span class="o">.</span><span class="n">zgrid</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="o">-</span><span class="mi">1</span>
     <span class="n">w_lower_climbs</span> <span class="o">=</span> <span class="n">ds_out_climbs</span><span class="o">.</span><span class="n">w_lower</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">conv_factor</span>
     <span class="n">w_upper_climbs</span> <span class="o">=</span> <span class="n">ds_out_climbs</span><span class="o">.</span><span class="n">w_upper</span><span class="o">.</span><span class="n">values</span> <span class="o">*</span> <span class="n">conv_factor</span>
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="c1"># Resize to half-width</span>
+        <span class="n">half_width</span> <span class="o">=</span> <span class="n">fig</span><span class="o">.</span><span class="n">get_size_inches</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="mf">2.07</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">set_size_inches</span><span class="p">(</span><span class="n">half_width</span><span class="p">,</span> <span class="n">half_width</span> <span class="o">*</span> <span class="mf">0.9</span><span class="p">)</span>
+        <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'both'</span><span class="p">,</span> <span class="n">which</span><span class="o">=</span><span class="s1">'major'</span><span class="p">)</span>
+
         <span class="c1"># Plot dives</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">fill_betweenx</span><span class="p">(</span><span class="n">zgrid_dives</span><span class="p">,</span> <span class="n">w_lower_dives</span><span class="p">,</span> <span class="n">w_upper_dives</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">meanw_dives</span><span class="p">,</span> <span class="n">zgrid_dives</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="s1">'black'</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">'w$_</span><span class="si">{dive}</span><span class="s1">$'</span><span class="p">)</span>
@@ -1402,7 +1439,7 @@
 <span class="sd">    """</span>
     <span class="n">varG</span><span class="p">,</span> <span class="n">profG</span><span class="p">,</span> <span class="n">depthG</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">construct_2dgrid</span><span class="p">(</span><span class="n">ds</span><span class="o">.</span><span class="n">PROFILE_NUMBER</span><span class="p">,</span> <span class="n">ds</span><span class="o">.</span><span class="n">DEPTH</span><span class="p">,</span> <span class="n">ds</span><span class="p">[</span><span class="n">var</span><span class="p">],</span> <span class="mi">1</span><span class="p">,</span> <span class="n">v_res</span><span class="p">,</span><span class="n">x_bin_center</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
     <span class="n">df</span><span class="p">,</span> <span class="n">diff</span><span class="p">,</span> <span class="n">err_mean</span><span class="p">,</span> <span class="n">err_range</span><span class="p">,</span> <span class="n">rms</span> <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">compute_hyst_stat</span><span class="p">(</span><span class="n">ds</span><span class="p">,</span> <span class="n">var</span><span class="o">=</span><span class="n">var</span><span class="p">,</span> <span class="n">v_res</span><span class="o">=</span><span class="n">v_res</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fig</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">()</span>
             <span class="n">ax</span> <span class="o">=</span> <span class="p">[</span><span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)]</span>
@@ -1480,7 +1517,7 @@
 <span class="sd">    -----</span>
 <span class="sd">    Original Author: Chiara Monforte</span>
 <span class="sd">    """</span>
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fig</span><span class="p">,</span><span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)</span>
             <span class="n">force_plot</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1552,7 +1589,7 @@
 <span class="sd">    -----</span>
 <span class="sd">    Original Author: Chiara Monforte</span>
 <span class="sd">    """</span>
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
             <span class="n">force_plot</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1610,7 +1647,7 @@
 <span class="sd">      on thresholds, and another for marking specific suspect and fail ranges.</span>
 <span class="sd">    Original Author: Chiara Monforte</span>
 <span class="sd">    """</span>
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">()</span>
             <span class="n">force_plot</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1640,7 +1677,7 @@
             <span class="n">a_2</span><span class="p">[</span><span class="mi">4</span><span class="p">]</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'x&gt;</span><span class="si">{</span><span class="n">fail_threshold</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s1">'</span>
         <span class="n">a_2</span><span class="p">[</span><span class="mi">9</span><span class="p">]</span> <span class="o">=</span> <span class="s1">'Nan'</span>
 
-        <span class="n">ax2</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">a_2</span><span class="p">)</span>
+        <span class="n">ax2</span><span class="o">.</span><span class="n">set_yticklabels</span><span class="p">(</span><span class="n">a_2</span><span class="p">,</span> <span class="n">fontsize</span><span class="o">=</span><span class="mi">12</span><span class="p">)</span>
 
         <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="s1">'Data index'</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">()</span>
@@ -1683,7 +1720,7 @@
 <span class="sd">    Original Author: Till Moritz</span>
 <span class="sd">    """</span>
     <span class="n">max_depths</span> <span class="o">=</span> <span class="n">tools</span><span class="o">.</span><span class="n">max_depth_per_profile</span><span class="p">(</span><span class="n">ds</span><span class="p">)</span>
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span>  
             <span class="n">force_plot</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1748,7 +1785,7 @@
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="nb">vars</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Only three variables can be plotted at once, chose fewer variables"</span><span class="p">)</span>
 
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax1</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>   
             <span class="n">force_plot</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1786,7 +1823,7 @@
             <span class="n">label</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">plotting_labels</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="n">var</span><span class="p">],</span> <span class="n">profile</span><span class="p">[</span><span class="s1">'DEPTH'</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">label</span><span class="o">=</span><span class="n">label</span><span class="p">)</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">profile</span><span class="p">[</span><span class="n">var</span><span class="p">],</span> <span class="n">profile</span><span class="p">[</span><span class="s1">'DEPTH'</span><span class="p">],</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">marker</span><span class="o">=</span><span class="s1">'o'</span><span class="p">,</span> <span class="n">s</span><span class="o">=</span><span class="n">s</span><span class="p">)</span>
-            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s1">)'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
+            <span class="n">ax</span><span class="o">.</span><span class="n">set_xlabel</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s1"> [</span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s1">]'</span><span class="p">,</span> <span class="n">color</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="s1">'x'</span><span class="p">,</span> <span class="n">colors</span><span class="o">=</span><span class="n">colors</span><span class="p">[</span><span class="n">i</span><span class="p">])</span>
             <span class="n">ax</span><span class="o">.</span><span class="n">spines</span><span class="p">[</span><span class="s1">'top'</span><span class="p">]</span><span class="o">.</span><span class="n">set_visible</span><span class="p">(</span><span class="kc">False</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
@@ -1798,8 +1835,6 @@
         <span class="n">ax1</span><span class="o">.</span><span class="n">set_ylabel</span><span class="p">(</span><span class="s1">'Depth (m)'</span><span class="p">)</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">invert_yaxis</span><span class="p">()</span>
         <span class="n">ax1</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">title_str</span><span class="si">}</span><span class="s1"> (</span><span class="si">{</span><span class="n">glider</span><span class="si">}</span><span class="s1"> on mission: </span><span class="si">{</span><span class="n">mission</span><span class="si">}</span><span class="s1">)'</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">force_plot</span><span class="p">:</span>
-            <span class="n">_show</span><span class="p">()</span>
 
     <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax1</span></div>
 
@@ -1847,7 +1882,7 @@
     <span class="n">depth</span> <span class="o">=</span> <span class="n">CR_df</span><span class="p">[</span><span class="s1">'DEPTH'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
     <span class="n">CR</span> <span class="o">=</span> <span class="n">CR_df</span><span class="p">[</span><span class="s1">'CR'</span><span class="p">]</span><span class="o">.</span><span class="n">values</span>
 
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>  
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">9</span><span class="p">))</span>   
             <span class="n">force_plot</span> <span class="o">=</span> <span class="kc">True</span>
@@ -1863,8 +1898,7 @@
         <span class="n">ax</span><span class="o">.</span><span class="n">set_title</span><span class="p">(</span><span class="sa">f</span><span class="s1">'Profile </span><span class="si">{</span><span class="n">profile_num</span><span class="si">}</span><span class="s1"> (Convective Resistance)'</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">grid</span><span class="p">(</span><span class="kc">True</span><span class="p">)</span>
         <span class="n">ax</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
-    <span class="k">if</span> <span class="n">force_plot</span><span class="p">:</span>
-        <span class="n">_show</span><span class="p">()</span>
+    
     <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span></div>
 
 
@@ -2010,15 +2044,13 @@
     <span class="c1"># plotting</span>
     <span class="c1"># -------------------------</span>
 
-    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">glidertest_style_file</span><span class="p">):</span>
+    <span class="k">with</span> <span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">context</span><span class="p">(</span><span class="n">_style</span><span class="p">()):</span>
         <span class="c1"># --- Handle provided axes ---</span>
         <span class="k">if</span> <span class="n">ax</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">fig</span> <span class="o">=</span> <span class="n">ax</span><span class="o">.</span><span class="n">get_figure</span><span class="p">()</span>
-            <span class="n">force_plot</span> <span class="o">=</span> <span class="kc">True</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="c1"># Create new figure and axes if none provided</span>
             <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">5</span><span class="p">))</span>
-            <span class="n">force_plot</span> <span class="o">=</span> <span class="kc">True</span>
 
         <span class="k">if</span> <span class="ow">not</span> <span class="n">kw</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">"cmap"</span><span class="p">):</span>
             <span class="n">kw</span><span class="p">[</span><span class="s2">"cmap"</span><span class="p">]</span> <span class="o">=</span> <span class="n">utilities</span><span class="o">.</span><span class="n">plotting_colormap</span><span class="p">(</span><span class="n">var</span><span class="p">)</span>
@@ -2054,7 +2086,7 @@
         <span class="c1"># colorbar</span>
         <span class="c1"># -------------------------</span>
         <span class="n">cbar</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">colorbar</span><span class="p">(</span><span class="n">mappable</span><span class="p">,</span> <span class="n">ax</span><span class="o">=</span><span class="n">ax</span><span class="p">,</span> <span class="n">spacing</span><span class="o">=</span><span class="s2">"proportional"</span><span class="p">,</span><span class="n">extend</span><span class="o">=</span><span class="s2">"both"</span><span class="p">)</span>
-        <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2">)"</span><span class="p">)</span>
+        <span class="n">cbar</span><span class="o">.</span><span class="n">set_label</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> [</span><span class="si">{</span><span class="n">unit</span><span class="si">}</span><span class="s2">]"</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">log_scale</span><span class="p">:</span>
             <span class="n">cbar</span><span class="o">.</span><span class="n">ax</span><span class="o">.</span><span class="n">set_yscale</span><span class="p">(</span><span class="s1">'log'</span><span class="p">)</span>
 
@@ -2088,9 +2120,8 @@
             <span class="n">time_ax</span><span class="o">.</span><span class="n">xaxis</span><span class="o">.</span><span class="n">set_major_formatter</span><span class="p">(</span><span class="n">mdates</span><span class="o">.</span><span class="n">DateFormatter</span><span class="p">(</span><span class="n">fmt</span><span class="p">))</span>
 
             <span class="n">time_ax</span><span class="o">.</span><span class="n">tick_params</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">35</span><span class="p">)</span>
-    <span class="k">if</span> <span class="n">force_plot</span><span class="p">:</span>
-        <span class="n">_show</span><span class="p">()</span>
-    <span class="k">return</span> <span class="n">fig</span><span class="p">,</span> <span class="n">ax</span><span class="p">,</span> <span class="n">cbar</span><span class="p">,</span> <span class="n">time_ax</span></div>
+
+    <span class="k">return</span> <span class="n">ax</span><span class="p">,</span> <span class="n">cbar</span><span class="p">,</span> <span class="n">time_ax</span></div>
 
 
 </pre></div>
